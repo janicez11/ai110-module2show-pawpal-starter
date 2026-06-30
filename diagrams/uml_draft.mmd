@@ -1,0 +1,71 @@
+classDiagram
+    %% Replace the placeholders below with your actual classes, attributes, methods, and relationships.
+    %% Keep this file updated so it matches your final implementation.
+
+    %% class ClassName {
+    %%     +type attribute
+    %%     +method() returnType
+    %% }
+
+    %% class AnotherClass {
+    %%     +type attribute
+    %%     +method() returnType
+    %% }
+
+    %% ClassName --> AnotherClass : relationship
+
+    class Owner {
+        +String name
+        +List availability
+        +Dict preferences
+        +List pets
+        +List tasks
+        +add_pet(pet)
+        +remove_pet(pet)
+        +set_availability(windows)
+        +add_task(task)
+        +remove_task(task_id)
+        +get_tasks() List
+        +get_schedule() List
+    }
+
+    class Pet {
+        +String name
+        +String breed
+        +List walk_history
+        +List feeding_history
+        +List grooming_history
+        +List medical_history
+        +get_last_walked() datetime
+        +get_last_fed() datetime
+        +get_last_groomed() datetime
+        +get_last_medical_record() dict
+        +needs_attention() bool
+    }
+
+    class Task {
+        +String title
+        +int duration
+        +String priority
+        +String recurrence
+        +Pet pet
+        +assign_to_pet(pet)
+        +set_priority(priority)
+        +set_duration(duration)
+        +is_overdue() bool
+        +to_dict() dict
+    }
+
+    class Scheduler {
+        +Owner owner
+        +List tasks
+        +List generated_plan
+        +generate_plan() List
+        +filter_by_time() List
+        +explain_plan() String
+    }
+
+    Owner "1" --> "0..*" Pet : has
+    Owner "1" --> "0..*" Task : manages
+    Task "0..*" --> "1" Pet : assigned to
+    Scheduler "1" --> "1" Owner : takes

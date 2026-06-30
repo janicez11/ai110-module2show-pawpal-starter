@@ -2,10 +2,73 @@
 
 ## 1. System Design
 
+Core Actions:
+1. Add owner and pet info
+2. Add tasks to a calendar system for feeding, walking, grooming, etc
+3. Generate a daily plan based on availability and pet history
+
+
+
 **a. Initial design**
 
 - Briefly describe your initial UML design.
+4 class objects: User, Pet, Task, and Scheduler
+User can have multiple Pet objects.
+Each pet contains tasks.
+
+
 - What classes did you include, and what responsibilities did you assign to each?
+
+1. User
+    attributes:
+    - name
+    - pets []
+    - availability
+    - preferences
+    methods:
+    - add_pet()
+    - set_availability()
+    - set_preferences()
+    - create_task()
+    - delete_task()
+    - get_task()
+
+2. Pet
+    attributes:
+    - name
+    - breed type
+    - walk history
+    - feeding history
+    - groom history
+    - medical history
+    methods:
+    - get_last walked()
+    - get last fed
+    - get last groomed
+    - get last medical record
+    - needs attention
+
+3. Task
+    attributes:
+    - task title
+    - task date/time 
+    - duration
+    - priority
+    - recurrence
+    - pet 
+    methods:
+    - assign to pet
+    - is overdue
+    - edit task
+
+4. Scheduler
+    attributes:
+    - owner
+    - tasks
+    - generated plan
+    methods:
+    - generate_plan()
+    - explain_plan()
 
 **b. Design changes**
 
