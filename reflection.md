@@ -73,7 +73,10 @@ Each pet contains tasks.
 **b. Design changes**
 
 - Did your design change during implementation?
+It did. Initially, I was unsure whether create task should be under the user or the pet. 
 - If yes, describe at least one change and why you made it.
+With AI help, it explained to me that it should stay within the user because it is the user's responsibility to create tasks and that the user would have all the info needed to create a task. 
+
 
 ---
 
