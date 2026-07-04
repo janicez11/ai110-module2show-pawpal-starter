@@ -95,10 +95,10 @@ Sample test output:
 
 | Feature | Method(s) | Notes |
 |---------|-----------|-------|
-| Task sorting | | e.g., by priority, duration |
-| Filtering | | e.g., skip tasks if time runs out |
-| Conflict handling | | e.g., overlapping time slots |
-| Recurring tasks | | e.g., daily vs. weekly |
+| Task sorting | Scheduler.filter_by_time(), generate_plan() | gets list of tasks that are incompleted and due today, then sorts it by time. |
+| Task Filtering | filter_tasks() | filters tasks by completion or pet names |
+| Conflict handling | Scheduler.check_conflicts() | check for tasks with same start time and uses priority as tie breaker to place them one after another.|
+| Recurring tasks | render_task_list() | upon task completion, check if it is a recurring task. If it is, then create a new instance of it immediately.|
 
 ## 📸 Demo Walkthrough
 

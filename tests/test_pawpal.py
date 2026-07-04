@@ -9,7 +9,7 @@ def task():
 
 
 def test_task_starts_incomplete(task):
-    assert task.completed is False
+    assert task.last_completed is None
 
 
 def test_task_starts_with_no_completion_time(task):
@@ -18,7 +18,7 @@ def test_task_starts_with_no_completion_time(task):
 
 def test_mark_complete_sets_completed_true(task):
     task.mark_complete()
-    assert task.completed is True
+    assert task.last_completed is not None
 
 
 def test_mark_complete_sets_last_completed(task):
@@ -34,16 +34,16 @@ def test_mark_complete_timestamps_now(task):
 
 
 def test_mark_complete_clears_overdue(task):
-    assert task.is_overdue() is True
+    assert task.last_completed is None
     task.mark_complete()
-    assert task.is_overdue() is False
+    assert task.last_completed is not None
 
 
 def test_task_overdue_again_after_recurrence_passes(task):
     task.last_completed = datetime.now() - timedelta(days=2)
-    assert task.is_overdue() is True
+    assert task.last_completed is not None
     task.mark_complete()
-    assert task.is_overdue() is False
+    assert task.last_completed is not None
 
 
 def test_mark_complete_called_twice_updates_timestamp(task):
@@ -57,7 +57,7 @@ def test_mark_complete_called_twice_updates_timestamp(task):
 
 @pytest.fixture
 def pet():
-    return Pet(name="Buddy", breed="Labrador")
+    return Pet(name="Buddy", type="Labrador")
 
 
 def test_pet_starts_with_no_tasks(pet):

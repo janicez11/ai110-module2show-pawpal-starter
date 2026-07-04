@@ -13,8 +13,8 @@ Core Actions:
 
 - Briefly describe your initial UML design.
 4 class objects: User, Pet, Task, and Scheduler
-User can have multiple Pet objects.
-Each pet contains tasks.
+Each user will contain Pet information and Task information. 
+The Scheduler will have access to Owner information to access tasks and pets for scheduling.
 
 
 - What classes did you include, and what responsibilities did you assign to each?
@@ -85,12 +85,18 @@ With AI help, it explained to me that it should stay within the user because it 
 **a. Constraints and priorities**
 
 - What constraints does your scheduler consider (for example: time, priority, preferences)?
+It used priority, overdue, availability window.
 - How did you decide which constraints mattered most?
+I kept availability window because that is the most important constraint. If the owner is
+not even avaialble then the task cannot be scheduled. Then I used priority as a tie breaker for conflicting tasks.
 
 **b. Tradeoffs**
 
 - Describe one tradeoff your scheduler makes.
+Being strict with preferred start time. Originally, the scheduler placed tasks before the availability window start time to maximize how many tasks got scheduled for the day, but that ignored the owner's timing intent. Instead, I switched it to just not schedule those tasks and display with a warning message. 
+
 - Why is that tradeoff reasonable for this scenario?
+This provides the most accuracy of scheduling and time for the owner. Tasks with a perferred time specified should not be pushed back to make time for another task that was specified outside the available window. A better option would be to schedule those remaining tasks in time slots that fit throughout the day once the preferred ones get scheduled.
 
 ---
 
