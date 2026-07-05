@@ -129,7 +129,7 @@ class Scheduler:
 
     def check_conflict(self, task: Task, preferred: datetime, start: datetime) -> None:
         """Append a warning to self.conflicts if a task could not be placed at its preferred time."""
-        pet_label = f"for {task.pet.name}" if task.pet else "for the owner"
+        pet_label = f"for {task.pet.name}" if task.pet else f"for {self.owner.name}"
         if start > preferred:
             self.conflicts.append(
                 f"Task '{task.title}' ({pet_label}) preferred {preferred.strftime('%I:%M %p')} but bumped to {start.strftime('%I:%M %p')} due to a conflict with a prior task."
@@ -180,7 +180,7 @@ class Scheduler:
 
         self.unscheduled = task_queue
         for task in self.unscheduled:
-            pet_label = f"for {task.pet.name}" if task.pet else "for the owner"
+            pet_label = f"for {task.pet.name}" if task.pet else f"for {self.owner.name}"
             self.conflicts.append(
                 f"Task '{task.title}' ({pet_label}) preferred {task.preferred_start.strftime('%I:%M %p')} could not fit in any availability window and was not scheduled."
             )
@@ -204,7 +204,7 @@ class Scheduler:
 
         lines = [f"{self.owner.name}'s schedule explanation for today:\n"]
         for i, task in enumerate(plan, 1):
-            pet_name = task.pet.name if task.pet else "the owner"
+            pet_name = task.pet.name if task.pet else self.owner.name
             time_str = (
                 f"{task.scheduled_start.strftime('%I:%M %p')} to {task.scheduled_end.strftime('%I:%M %p')}"
                 if task.scheduled_start and task.scheduled_end
@@ -224,7 +224,7 @@ class Scheduler:
         if self.unscheduled:
             lines.append("\nCould not be scheduled:")
             for task in self.unscheduled:
-                pet_name = task.pet.name if task.pet else "the owner"
+                pet_name = task.pet.name if task.pet else self.owner.name
                 lines.append(
                     f"  - {task.title} (for {pet_name}) — preferred {task.preferred_start.strftime('%I:%M %p')}"
                     f" but could not fit in any availability window."

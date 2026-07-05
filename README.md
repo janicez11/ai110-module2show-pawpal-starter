@@ -95,11 +95,6 @@ Paste a sample of your app's CLI or Streamlit output here so a reader can see wh
 # Run the full test suite:
 python -m pytest
 
-- Task Completion: mark_complete sets last_completed to a non-None datetime.
-- Pet/task assignment: assign_to_pet links the task bidirectionally, adds it to pet.tasks, does not duplicate on repeated calls, and correctly tracks multiple distinct tasks.
-- Sorting / scheduling: tasks are returned in chronological order by scheduled_start regardless of insertion order. Same preferred time uses priority as a tiebreaker. Tasks outside the window land in unscheduled, not the plan.
-- Recurrence Spawning: Completing a daily task creates a follow-up task dated the next day
-- Duplicate preferred times bump the lower-priority task and record exactly one conflict naming that task.
 
 # Run with coverage:
 pytest --cov
@@ -119,7 +114,6 @@ tests\test_pawpal.py ...............................                            
 ========================================================= 31 passed in 0.12s ==========================================================
 ```
 
-Confidence Level: 5 stars
 
 ## 📐 Smarter Scheduling
 
@@ -136,10 +130,15 @@ Confidence Level: 5 stars
 
 Describe your app in numbered steps so a reader can follow along without watching a video:
 
-1. <!-- Describe this step -->
-2. <!-- Describe this step -->
-3. <!-- Describe this step -->
-4. <!-- Describe this step -->
-5. <!-- Add more steps as needed -->
+1. **Launch the app** — run `streamlit run app.py` and open the local URL in your browser. You'll see the PawPal+ title and a description of the app.
+2. **Add an owner** — click `+ Add Owner`, type a name, and click `Save owner`. The owner's name will appear in the dropdown at the top.
+3. **Add a pet** — with the owner selected, click `+ Add Pet`, enter a name and species, then click `Save pet`. The pet appears in a table under the owner's name.
+4. **Add tasks** — Open an expander under Tasks, owner or pet. Click `+ Add Task` to open the task form. Fill in the title, duration (minutes), priority (low/medium/high), recurrence, date, time.  Click `Save task` to add it.
+5. **View tasks** — tasks appear under expandable sections labeled "General Tasks" (owner-level) or by pet name. Each row shows the title, date, time, duration, priority, and recurrence.
+6. **Complete a task** — check the checkbox next to a task to mark it done. It disappears from the list. If the task is recurring, a new instance for the next occurrence is automatically created.
+7. **Set availability** — scroll to the Availability section and click `+ Add Availability Window`. Enter a start and end time, then click `Save window`. This defines when the owner is free to do tasks.
+8. **Generate a schedule** — click `Generate schedule`. The app fits all of today's pending tasks into the availability window, sorted by preferred time and priority.
+9. **Review the results** — a green success banner confirms the schedule is ready. Any tasks that were bumped or couldn't fit appear as yellow conflict warnings. The schedule table shows each task's start time, end time, pet, priority, duration, and recurrence.
+10. **Read the explanation** — below the table, a plain-text explanation describes why each task was placed at its time and notes any tasks that could not be scheduled.
 
 **Screenshot or video** *(optional)*: <!-- Insert a screenshot or link to a demo video here -->

@@ -52,7 +52,7 @@ if "show_add_owner" not in st.session_state:
 if "show_add_pet" not in st.session_state:
     st.session_state.show_add_pet = False
 if "show_add_task" not in st.session_state:
-    st.session_state.show_add_task = False
+    st.session_state.show_add_task = {}
 if "show_add_window" not in st.session_state:
     st.session_state.show_add_window = False
 
@@ -68,12 +68,13 @@ if st.button("+ Add Owner"):
     st.session_state.show_add_owner = not st.session_state.show_add_owner
 
 if st.session_state.show_add_owner:
-    new_owner_name = st.text_input("Owner name", placeholder="Enter owner name")
-    if st.button("Save owner") and new_owner_name:
-        if new_owner_name not in st.session_state.owners:
-            st.session_state.owners[new_owner_name] = Owner(name=new_owner_name)
-        st.session_state.show_add_owner = False
-        st.rerun()
+    with st.form("add_owner_form"):
+        new_owner_name = st.text_input("Owner name", placeholder="Enter owner name")
+        if st.form_submit_button("Save owner") and new_owner_name:
+            if new_owner_name not in st.session_state.owners:
+                st.session_state.owners[new_owner_name] = Owner(name=new_owner_name)
+            st.session_state.show_add_owner = False
+            st.rerun()
 
 
 # display pets when an owner is selected or created
@@ -92,12 +93,13 @@ if owner_name:
         st.session_state.show_add_pet = not st.session_state.show_add_pet
 
     if st.session_state.show_add_pet:
-        pet_name = st.text_input("Pet name", placeholder="Enter pet name")
-        species = st.text_input("Species", placeholder="Enter pet type")
-        if st.button("Save pet") and pet_name:
-            owner.add_pet(Pet(name=pet_name, type=species))
-            st.session_state.show_add_pet = False
-            st.rerun()
+        with st.form("add_pet_form"):
+            pet_name = st.text_input("Pet name", placeholder="Enter pet name")
+            species = st.text_input("Species", placeholder="Enter pet type")
+            if st.form_submit_button("Save pet") and pet_name:
+                owner.add_pet(Pet(name=pet_name, type=species))
+                st.session_state.show_add_pet = False
+                st.rerun()
 
 def render_task_list(tasks, key_prefix, empty_msg, owner):
     """Render an interactive task list with a checkbox per row.
@@ -143,43 +145,62 @@ if owner_name:
     # owner level tasks
     with st.expander("General Tasks"):
         render_task_list(owner_only_tasks, f"owner_{owner_name}", "No tasks yet.", owner)
+        if st.button("+ Add Task", key="add_task_btn_owner"):
+            st.session_state.show_add_task["owner"] = not st.session_state.show_add_task.get("owner", False)
+        if st.session_state.show_add_task.get("owner"):
+            with st.form("add_task_form_owner"):
+                col1, col2, col3, col4 = st.columns(4)
+                with col1:
+                    task_title = st.text_input("Task title", placeholder="Enter task title")
+                with col2:
+                    duration = st.number_input("Duration (minutes)", min_value=1, max_value=240, value=20)
+                with col3:
+                    priority = st.selectbox("Priority", ["low", "medium", "high"], index=2)
+                with col4:
+                    recurrence = st.selectbox("Recurrence", ["none", "daily", "weekly", "monthly"])
+                col5, col6 = st.columns(2)
+                with col5:
+                    preferred_date = st.date_input("Date", value=datetime.now().date())
+                with col6:
+                    preferred_time = st.time_input("Time", value=time(8, 0))
+                if st.form_submit_button("Save task"):
+                    task = Task(title=task_title, duration=int(duration), priority=priority, recurrence=recurrence)
+                    task.preferred_start = datetime.combine(preferred_date, preferred_time)
+                    task.scheduled_start = task.preferred_start
+                    owner.add_task(task)
+                    st.session_state.show_add_task["owner"] = False
+                    st.rerun()
 
     # pet level tasks, assigned to each pet
     for pet in owner.pets:
         with st.expander(f"{pet.name}'s Tasks"):
             render_task_list(pet.tasks, f"pet_{pet.name}", f"No tasks for {pet.name} yet.", owner)
-
-    # add new task
-    if st.button("+ Add Task"):
-        st.session_state.show_add_task = not st.session_state.show_add_task
-
-    if st.session_state.show_add_task:
-        col1, col2, col3, col4 = st.columns(4)
-        with col1:
-            task_title = st.text_input("Task title", placeholder="Enter task title")
-        with col2:
-            duration = st.number_input("Duration (minutes)", min_value=1, max_value=240, value=20)
-        with col3:
-            priority = st.selectbox("Priority", ["low", "medium", "high"], index=2)
-        with col4:
-            recurrence = st.selectbox("Recurrence", ["none", "daily", "weekly", "monthly"])
-        col5, col6 = st.columns(2)
-        with col5:
-            preferred_date = st.date_input("Date", value=datetime.now().date())
-        with col6:
-            preferred_time = st.time_input("Time", value=time(8, 0))
-        pet_options = ["No pet (owner task)"] + [p.name for p in owner.pets]
-        assigned_pet = st.selectbox("Assign to pet", pet_options)
-        if st.button("Save task"):
-            task = Task(title=task_title, duration=int(duration), priority=priority, recurrence=recurrence)
-            task.preferred_start = datetime.combine(preferred_date, preferred_time)
-            task.scheduled_start = task.preferred_start
-            if assigned_pet != "No pet (owner task)":
-                pet = next(p for p in owner.pets if p.name == assigned_pet)
-                task.assign_to_pet(pet)
-            owner.add_task(task)
-            st.session_state.show_add_task = False
-            st.rerun()
+            if st.button("+ Add Task", key=f"add_task_btn_{pet.name}"):
+                st.session_state.show_add_task[pet.name] = not st.session_state.show_add_task.get(pet.name, False)
+            if st.session_state.show_add_task.get(pet.name):
+                with st.form(f"add_task_form_{pet.name}"):
+                    col1, col2, col3, col4 = st.columns(4)
+                    with col1:
+                        task_title = st.text_input("Task title", placeholder="Enter task title")
+                    with col2:
+                        duration = st.number_input("Duration (minutes)", min_value=1, max_value=240, value=20)
+                    with col3:
+                        priority = st.selectbox("Priority", ["low", "medium", "high"], index=2)
+                    with col4:
+                        recurrence = st.selectbox("Recurrence", ["none", "daily", "weekly", "monthly"])
+                    col5, col6 = st.columns(2)
+                    with col5:
+                        preferred_date = st.date_input("Date", value=datetime.now().date())
+                    with col6:
+                        preferred_time = st.time_input("Time", value=time(8, 0))
+                    if st.form_submit_button("Save task"):
+                        task = Task(title=task_title, duration=int(duration), priority=priority, recurrence=recurrence)
+                        task.preferred_start = datetime.combine(preferred_date, preferred_time)
+                        task.scheduled_start = task.preferred_start
+                        task.assign_to_pet(pet)
+                        owner.add_task(task)
+                        st.session_state.show_add_task[pet.name] = False
+                        st.rerun()
 
 st.divider()
 
@@ -201,23 +222,24 @@ if owner_name:
         st.session_state.show_add_window = not st.session_state.show_add_window
 
     if st.session_state.show_add_window:
-        col1, col2 = st.columns(2)
-        with col1:
-            start_time = st.time_input("Start time", value=time(9, 0))
-        with col2:
-            end_time = st.time_input("End time", value=time(17, 0))
-        if st.button("Save window"):
-            today = datetime.now().date()
-            new_window = {
-                "start": datetime.combine(today, start_time),
-                "end":   datetime.combine(today, end_time),
-            }
-            if new_window["start"] < new_window["end"]:
-                owner.availability.append(new_window)
-                st.session_state.show_add_window = False
-                st.rerun()
-            else:
-                st.error("End time must be after start time.")
+        with st.form("add_window_form"):
+            col1, col2 = st.columns(2)
+            with col1:
+                start_time = st.time_input("Start time", value=time(9, 0))
+            with col2:
+                end_time = st.time_input("End time", value=time(17, 0))
+            if st.form_submit_button("Save window"):
+                today = datetime.now().date()
+                new_window = {
+                    "start": datetime.combine(today, start_time),
+                    "end":   datetime.combine(today, end_time),
+                }
+                if new_window["start"] < new_window["end"]:
+                    owner.availability.append(new_window)
+                    st.session_state.show_add_window = False
+                    st.rerun()
+                else:
+                    st.error("End time must be after start time.")
 
 if owner_name:
     st.subheader("Build Schedule")
@@ -232,21 +254,22 @@ if owner_name:
         owner.set_availability(owner.availability)
         scheduler = Scheduler(owner=owner)
         plan = scheduler.generate_plan()
-        if not plan:
+        if not plan and not scheduler.conflicts:
             st.info("No tasks to schedule.")
         else:
-            st.success("Today's schedule is ready to view!")
             if scheduler.conflicts:
                 for msg in scheduler.conflicts:
                     st.warning(f"Scheduling Conflict Warning: {msg}")
-            st.markdown(f"#### Today's Schedule — {datetime.now().strftime('%A, %B %d %Y')}")
-            st.table([{
-                "start": t.scheduled_start.strftime("%I:%M %p") if t.scheduled_start else "—",
-                "end": t.scheduled_end.strftime("%I:%M %p") if t.scheduled_end else "—",
-                "title": t.title,
-                "pet": t.pet.name if t.pet else "—",
-                "priority": t.priority,
-                "duration (min)": t.duration,
-                "recurrence": t.recurrence,
-            } for t in plan])
-            st.code(scheduler.explain_plan())
+            if plan:
+                st.success("Today's schedule is ready to view!")
+                st.markdown(f"#### Today's Schedule — {datetime.now().strftime('%A, %B %d %Y')}")
+                st.table([{
+                    "start": t.scheduled_start.strftime("%I:%M %p") if t.scheduled_start else "—",
+                    "end": t.scheduled_end.strftime("%I:%M %p") if t.scheduled_end else "—",
+                    "title": t.title,
+                    "pet": t.pet.name if t.pet else "—",
+                    "priority": t.priority,
+                    "duration (min)": t.duration,
+                    "recurrence": t.recurrence,
+                } for t in plan])
+                st.code(scheduler.explain_plan())
