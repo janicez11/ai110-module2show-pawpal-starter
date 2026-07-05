@@ -2,6 +2,13 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 
 
+RECURRENCE_DELTA = {
+    "daily":   timedelta(days=1),
+    "weekly":  timedelta(weeks=1),
+    "monthly": timedelta(days=30),
+}
+
+
 @dataclass
 class Pet:
     name: str
@@ -31,6 +38,28 @@ class Task:
         if self not in pet.tasks:
             pet.tasks.append(self)
 
+
+
+def spawn_next_occurrence(task: "Task", owner: "Owner") -> "Task | None":
+    """Create the next occurrence of a recurring task and register it with the owner.
+
+    Returns the new Task, or None if the task has no recurrence delta or no scheduled_start.
+    """
+    delta = RECURRENCE_DELTA.get(task.recurrence)
+    if not delta or not task.scheduled_start:
+        return None
+    next_task = Task(
+        title=task.title,
+        duration=task.duration,
+        priority=task.priority,
+        recurrence=task.recurrence,
+        preferred_start=task.preferred_start + delta,
+        scheduled_start=task.scheduled_start + delta,
+    )
+    if task.pet:
+        next_task.assign_to_pet(task.pet)
+    owner.add_task(next_task)
+    return next_task
 
 
 class Owner:

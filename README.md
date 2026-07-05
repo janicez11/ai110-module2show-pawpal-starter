@@ -47,23 +47,39 @@ pip install -r requirements.txt
 Paste a sample of your app's CLI or Streamlit output here so a reader can see what a generated plan looks like:
 
 
-==========================================
-             TODAY'S SCHEDULE             
-           Jamie  |  Tue Jun 30           
-==========================================
+====================================================
+                  PAWPAL+ SCHEDULE                  
+                Jamie  |  Sat Jul 04                
+====================================================
 
-  BUDDY (Labrador)
-  ----------------
-  [!] Morning Walk       09:00 AM - 09:30 AM       OVERDUE
-  [!] Grooming           09:30 AM - 10:15 AM       OVERDUE
+  CONFLICT WARNINGS
+  --------------------------------------------------
+  [!] Task 'Brush Teeth' (for Luna) preferred 08:00 AM but bumped to 08:25 AM due to a conflict with a prior task.
+  [!] Task 'Medication' (for the owner) preferred 07:30 AM could not fit in any availability window and was not scheduled.
+  [!] Task 'Vet Visit' (for Luna) preferred 02:00 PM could not fit in any availability window and was not scheduled.
+  [!] Task 'Evening Walk' (for Buddy) preferred 05:30 PM could not fit in any availability window and was not scheduled.
 
-  LUNA (Persian Cat)
-  ------------------
-  [ ] Feeding            10:15 AM - 10:25 AM       on track
+  SCHEDULED  (08:00 AM - 12:00 PM)
+  --------------------------------------------------
+  Morning Walk         08:00 - 08:25 AM       Buddy
+  Brush Teeth          08:25 - 08:40 AM       Luna
+  Playtime             09:00 - 09:20 AM       Buddy
+  Grooming             10:00 - 10:45 AM       Buddy
 
-==========================================
-  3 task(s) fit your 09:00 AM - 11:00 AM window
-==========================================
+  FILTER: incomplete tasks for Buddy
+  --------------------------------------------------
+  - Evening Walk (high, 30 min)
+  - Grooming (medium, 45 min)
+  - Morning Walk (high, 25 min)
+  - Playtime (low, 20 min)
+
+  FILTER: completed tasks (all pets)
+  --------------------------------------------------
+  - Feeding (last done: 02:08 PM)
+
+====================================================
+  4 of 4 task(s) fit the 08:00 AM - 12:00 PM window
+====================================================
 
 ```
 # e.g.:
@@ -77,7 +93,13 @@ Paste a sample of your app's CLI or Streamlit output here so a reader can see wh
 
 ```bash
 # Run the full test suite:
-pytest
+python -m pytest
+
+- Task Completion: mark_complete sets last_completed to a non-None datetime.
+- Pet/task assignment: assign_to_pet links the task bidirectionally, adds it to pet.tasks, does not duplicate on repeated calls, and correctly tracks multiple distinct tasks.
+- Sorting / scheduling: tasks are returned in chronological order by scheduled_start regardless of insertion order. Same preferred time uses priority as a tiebreaker. Tasks outside the window land in unscheduled, not the plan.
+- Recurrence Spawning: Completing a daily task creates a follow-up task dated the next day
+- Duplicate preferred times bump the lower-priority task and record exactly one conflict naming that task.
 
 # Run with coverage:
 pytest --cov
@@ -86,8 +108,18 @@ pytest --cov
 Sample test output:
 
 ```
-# Paste your pytest output here
+========================================================= test session starts =========================================================
+platform win32 -- Python 3.14.5, pytest-9.0.3, pluggy-1.6.0
+rootdir: C:\Users\janic\OneDrive\Desktop\Projects\AI_Codepath_Course\ai110-module2show-pawpal-starter
+plugins: anyio-4.13.0
+collected 31 items                                                                                                                     
+
+tests\test_pawpal.py ...............................                                                                             [100%]
+
+========================================================= 31 passed in 0.12s ==========================================================
 ```
+
+Confidence Level: 5 stars
 
 ## 📐 Smarter Scheduling
 

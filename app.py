@@ -1,6 +1,6 @@
 import streamlit as st
-from datetime import datetime, time, timedelta
-from pawpal_system import Pet, Task, Owner, Scheduler
+from datetime import datetime, time
+from pawpal_system import Pet, Task, Owner, Scheduler, spawn_next_occurrence
 
 st.set_page_config(page_title="PawPal+", page_icon="🐾", layout="centered")
 
@@ -99,13 +99,6 @@ if owner_name:
             st.session_state.show_add_pet = False
             st.rerun()
 
-# used for creating new instance of recurring task upon completion
-RECURRENCE_DELTA = {
-    "daily":   timedelta(days=1),
-    "weekly":  timedelta(weeks=1),
-    "monthly": timedelta(days=30),
-}
-
 def render_task_list(tasks, key_prefix, empty_msg, owner):
     """Render an interactive task list with a checkbox per row.
 
@@ -132,19 +125,7 @@ def render_task_list(tasks, key_prefix, empty_msg, owner):
             # when task is completed, check recurring attribute and create new task if needed
             if st.checkbox("", key=f"{key_prefix}_{id(t)}", label_visibility="collapsed"):
                 t.mark_complete()
-                delta = RECURRENCE_DELTA.get(t.recurrence)
-                if delta and t.scheduled_start:
-                    next_task = Task(
-                        title=t.title,
-                        duration=t.duration,
-                        priority=t.priority,
-                        recurrence=t.recurrence,
-                        preferred_start=t.preferred_start + delta,
-                        scheduled_start=t.preferred_start + delta,
-                    )
-                    if t.pet:
-                        next_task.assign_to_pet(t.pet)
-                    owner.add_task(next_task)
+                spawn_next_occurrence(t, owner)
                 st.rerun()
         # displays all attributes for each Task
         cols[1].write(t.title)
