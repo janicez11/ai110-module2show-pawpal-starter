@@ -1,0 +1,56 @@
+classDiagram
+    class Owner {
+        +String name
+        +List availability
+        +List pets
+        +List tasks
+        +add_pet(pet) void
+        +set_availability(windows) void
+        +add_task(task) void
+        +get_tasks() List
+        +filter_tasks() List
+    }
+
+    class Pet {
+        +String name
+        +String type
+        +List tasks
+    }
+
+    class Task {
+        +String title
+        +int duration
+        +String priority
+        +String recurrence
+        +Pet pet
+        +datetime last_completed
+        +datetime preferred_start
+        +datetime scheduled_start
+        +datetime scheduled_end
+        +mark_complete() void
+        +assign_to_pet(pet) void
+    }
+
+    class Scheduler {
+        +Owner owner
+        +List tasks
+        +List generated_plan
+        +List conflicts
+        +List unscheduled
+        +generate_plan() List
+        +filter_by_time() List
+        +check_conflict() void
+        +explain_plan() String
+    }
+
+    class spawn_next_occurrence {
+        <<function>>
+        +spawn_next_occurrence(task, owner) Task
+    }
+
+    Owner "1" --> "0..*" Pet : has
+    Owner "1" --> "0..*" Task : manages
+    Task "0..*" <--> "0..1" Pet : assigned to
+    Scheduler "1" --> "1" Owner : takes
+    spawn_next_occurrence --> Owner : registers task with
+    spawn_next_occurrence --> Task : creates
