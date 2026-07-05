@@ -235,11 +235,11 @@ if owner_name:
         if not plan:
             st.info("No tasks to schedule.")
         else:
+            st.success("Today's schedule is ready to view!")
             if scheduler.conflicts:
                 for msg in scheduler.conflicts:
-                    st.warning(msg)
+                    st.warning(f"Scheduling Conflict Warning: {msg}")
             st.markdown(f"#### Today's Schedule — {datetime.now().strftime('%A, %B %d %Y')}")
-            st.code(scheduler.explain_plan())
             st.table([{
                 "start": t.scheduled_start.strftime("%I:%M %p") if t.scheduled_start else "—",
                 "end": t.scheduled_end.strftime("%I:%M %p") if t.scheduled_end else "—",
@@ -249,3 +249,4 @@ if owner_name:
                 "duration (min)": t.duration,
                 "recurrence": t.recurrence,
             } for t in plan])
+            st.code(scheduler.explain_plan())
